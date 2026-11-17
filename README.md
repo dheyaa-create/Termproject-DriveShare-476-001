@@ -34,13 +34,14 @@ Demo accounts created by `seed.py` all use the password `Password123`:
 
 | Email | Role |
 |---|---|
-| alice@driveshare.test | Owner of 3 cars |
+| alice@driveshare.test | Owner of all 5 demo cars |
 | bob@driveshare.test | Renter |
-| carol@driveshare.test | Owner of 2 cars |
+| carol@driveshare.test | Renter |
 
+Alice has a sample pending request from Bob; log in as Alice to confirm or decline it from the home page.
 Security answers for the demo users are `blue`, `ann arbor` and `smith`. Every user starts with a simulated balance of $1,000.
 
-Run the test suite (19 tests covering every pattern, the security helpers and the full rental flow):
+Run the test suite (22 tests covering every pattern, the security helpers and the full rental flow):
 
 ```bash
 python -m pytest -q
@@ -75,5 +76,6 @@ seed.py, run.py, requirements.txt
 ```
 
 See **[docs/REPORT.md](docs/REPORT.md)** for the full design documentation.
+See **[docs/CAR_IMAGE_CREDITS.md](docs/CAR_IMAGE_CREDITS.md)** for credits and licenses for the bundled model photos.
 
 # Termproject-DriveShare-476-001

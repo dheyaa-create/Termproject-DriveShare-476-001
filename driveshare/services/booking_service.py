@@ -234,3 +234,12 @@ def bookings_as_owner(db, user_id):
         "SELECT b.*, c.make, c.model, c.year, c.owner_id, r.name AS renter_name "
         "FROM bookings b JOIN cars c ON c.id = b.car_id JOIN users r ON r.id = b.renter_id "
         "WHERE c.owner_id = ? ORDER BY b.start_time DESC", (user_id,)).fetchall()
+
+
+def pending_bookings_as_owner(db, user_id):
+    """List pending reservations for the user's cars for home-page actions."""
+    return db.execute(
+        "SELECT b.*, c.make, c.model, c.year, c.owner_id, r.name AS renter_name "
+        "FROM bookings b JOIN cars c ON c.id = b.car_id JOIN users r ON r.id = b.renter_id "
+        "WHERE c.owner_id = ? AND b.status = 'pending' ORDER BY b.start_time",
+        (user_id,)).fetchall()

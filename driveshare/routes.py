@@ -157,7 +157,10 @@ def index():
     db = get_db()
     # Limit only after sorting so the featured set contains top-rated listings.
     featured = cars.search(db, sort="rating")[:6]
-    return render_template("index.html", featured=featured, car_types=cars.car_types(db))
+    owner_requests = (bookings.pending_bookings_as_owner(db, g.user["id"])
+                      if g.user else [])
+    return render_template("index.html", featured=featured, car_types=cars.car_types(db),
+                           owner_requests=owner_requests)
 
 
 @main_bp.route("/search")
@@ -356,7 +359,8 @@ def my_bookings():
                            as_owner=bookings.bookings_as_owner(db, uid),
                            reviewed=community.reviewed_booking_ids(db, uid),
                            display_status=bookings.display_status,
-                           tab=request.args.get("tab", "renter"))
+                           tab=request.args.get(
+                               "tab", "owner" if bookings.pending_bookings_as_owner(db, uid) else "renter"))
 
 
 @main_bp.route("/bookings/<int:booking_id>/<action>", methods=["POST"])
@@ -486,8 +490,9 @@ def api_search():
     # Select only fields required by the UI; do not expose unrelated columns.
     results = [{k: r[k] for k in keys} for r in rows]
     for result in results:
-        # Match the locally stored category image used by server-rendered cards.
-        result["image_url"] = url_for("static", filename=cars.car_image_path(result["car_type"]))
+        # Match the model-specific image used by server-rendered cards.
+        result["image_url"] = url_for(
+            "static", filename=cars.car_image_path(result["car_type"], result["make"], result["model"]))
     return jsonify(ok=True, results=results)
 
 

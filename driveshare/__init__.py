@@ -66,7 +66,7 @@ def create_app(test_config=None):
     @app.template_filter("car_image")
     def format_car_image(car):
         """Return a local image URL chosen for this listing's vehicle category."""
-        filename = car_service.car_image_path(car["car_type"])
+        filename = car_service.car_image_path(car["car_type"], car["make"], car["model"])
         return url_for("static", filename=filename)
 
     from .routes import api_bp, auth_bp, main_bp

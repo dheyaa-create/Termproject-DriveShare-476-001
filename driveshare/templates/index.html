@@ -11,6 +11,31 @@
     <button class="btn" type="submit">Search</button>
   </form>
 </section>
+{% if owner_requests %}
+<section class="card">
+  <div class="row spread">
+    <h2>Booking requests for your cars</h2>
+    <a class="btn small secondary" href="{{ url_for('main.my_bookings', tab='owner') }}">All requests</a>
+  </div>
+  {% for b in owner_requests %}
+  <div class="list-item">
+    <div>
+      <strong>{{ b.year }} {{ b.make }} {{ b.model }}</strong>
+      <span class="muted"> · Request from {{ b.renter_name }}</span>
+      <p class="muted small">{{ b.start_time|dt }} → {{ b.end_time|dt }} · ${{ '%.2f'|format(b.total_price) }}</p>
+    </div>
+    <div class="row">
+      <form class="inline" method="post" action="{{ url_for('main.booking_action', booking_id=b.id, action='confirm') }}">
+        <button class="btn small ok">Confirm</button>
+      </form>
+      <form class="inline" method="post" action="{{ url_for('main.booking_action', booking_id=b.id, action='decline') }}">
+        <button class="btn small danger">Decline</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
 <div class="row spread"><h2>Top-rated cars</h2><a href="{{ url_for('main.search') }}">See all →</a></div>
 {% if featured %}
 <div class="featured">{% for c in featured %}{% include "_car_card.html" %}{% endfor %}</div>

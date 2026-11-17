@@ -3,13 +3,13 @@ seed.py - reset the database and load demo data for the presentation.
 
 Creates three users (password for all: ``Password123``):
 
-    alice@driveshare.test   owner of three cars
+    alice@driveshare.test   owner of five cars
     bob@driveshare.test     renter
-    carol@driveshare.test   owner of two cars and occasional renter
+    carol@driveshare.test   renter
 
 Security answers for every demo user: ``blue``, ``ann arbor``, ``smith``.
-It also creates one completed (paid, past) rental with reviews so the
-history and review features have something to show.
+It also creates a pending booking request and one completed (paid, past)
+rental with reviews so the owner actions and history features have something to show.
 """
 
 import os
@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 from driveshare import create_app
 from driveshare.database import get_db
 from driveshare.patterns.car_builder import CarListingBuilder, CarListingDirector
-from driveshare.services import auth_service, car_service
+from driveshare.services import auth_service, booking_service, car_service
 
 QUESTIONS = ["What is your favorite color?", "In what city were you born?",
              "What is your mother's maiden name?"]
@@ -71,15 +71,19 @@ def main():
             .set_description("Zero emissions and a lot of fun.")
             .add_availability(day(3), day(10, 20)).add_availability(day(20), day(40, 20)).build()))
         cars["civic"] = car_service.save_listing(db, (
-            CarListingBuilder(uid["carol"]).set_model("Honda", "Civic").set_year(2019)
+            CarListingBuilder(uid["alice"]).set_model("Honda", "Civic").set_year(2019)
             .set_mileage(41000).set_location("Ypsilanti, MI").set_price_per_day(42)
             .set_car_type("Sedan").set_seats(5).set_transmission("Manual")
             .set_features("Bluetooth, Apple CarPlay").add_availability(day(0, 8), day(30, 20)).build()))
         cars["f150"] = car_service.save_listing(db, (
-            CarListingBuilder(uid["carol"]).set_model("Ford", "F-150").set_year(2020)
+            CarListingBuilder(uid["alice"]).set_model("Ford", "F-150").set_year(2020)
             .set_mileage(52000).set_location("Dearborn, MI").set_price_per_day(95)
             .set_car_type("Truck").set_seats(5).set_transmission("Automatic").set_fuel_type("Gasoline")
             .set_features("Tow hitch, 4x4").add_availability(day(2), day(50, 20)).build()))
+
+        # --- a pending request Bob can respond to through Alice's home page ---
+        booking_service.create_booking(
+            db, cars["camry"], uid["bob"], day(5), day(7))
 
         # --- a finished rental (Bob rented Alice's Camry last week) + reviews ---
         db.execute("INSERT INTO bookings (car_id, renter_id, start_time, end_time, total_price, status) "

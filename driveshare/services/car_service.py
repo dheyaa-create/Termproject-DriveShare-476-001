@@ -207,9 +207,21 @@ CAR_IMAGE_PATHS = {
     "truck": "images/cars/truck.jpg",
 }
 
+CAR_MODEL_IMAGE_PATHS = {
+    ("toyota", "camry"): "images/cars/2021-toyota-camry.jpg",
+    ("toyota", "rav4 hybrid"): "images/cars/2023-toyota-rav4-hybrid.jpg",
+    ("tesla", "model 3"): "images/cars/2022-tesla-model-3.jpg",
+    ("honda", "civic"): "images/cars/2019-honda-civic.jpg",
+    ("ford", "f-150"): "images/cars/2020-ford-f150.jpg",
+}
 
-def car_image_path(car_type):
-    """Choose a bundled representative image for a listing's vehicle category."""
+
+def car_image_path(car_type, make=None, model=None):
+    """Choose a bundled model photo, falling back to a vehicle-category image."""
+    model_key = ((make or "").strip().lower(), (model or "").strip().lower())
+    if model_key in CAR_MODEL_IMAGE_PATHS:
+        return CAR_MODEL_IMAGE_PATHS[model_key]
+
     category = (car_type or "").strip().lower()
     if category in ("suv", "crossover"):
         image = CAR_IMAGE_PATHS["suv"]

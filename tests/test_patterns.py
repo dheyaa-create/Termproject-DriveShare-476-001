@@ -17,6 +17,56 @@ from driveshare.services import car_service, community_service as community
 from driveshare.services import notification_service
 
 
+def test_car_images_prefer_model_photos_and_keep_category_fallback():
+    """Known demo models use their own photos; other listings keep category defaults."""
+    assert car_service.car_image_path("Sedan", "Toyota", "Camry") == \
+        "images/cars/2021-toyota-camry.jpg"
+    assert car_service.car_image_path("SUV", "TOYOTA", "RAV4 Hybrid") == \
+        "images/cars/2023-toyota-rav4-hybrid.jpg"
+    assert car_service.car_image_path("Electric", "Tesla", "Model 3") == \
+        "images/cars/2022-tesla-model-3.jpg"
+    assert car_service.car_image_path("Sedan", "Honda", "Civic") == \
+        "images/cars/2019-honda-civic.jpg"
+    assert car_service.car_image_path("Truck", "Ford", "F-150") == \
+        "images/cars/2020-ford-f150.jpg"
+    assert car_service.car_image_path("SUV", "Toyota", "Highlander") == \
+        car_service.CAR_IMAGE_PATHS["suv"]
+
+
+def test_search_api_returns_model_specific_image(app, ctx):
+    """Live search returns the same model-specific photo as server-rendered cards."""
+    ids = app.ids
+    camry = car_service.save_listing(
+        ctx, CarListingBuilder(ids["owner"]).set_model("Toyota", "Camry").set_year(2021)
+        .set_mileage(1000).set_location("Ann Arbor").set_price_per_day(55).build())
+    response = app.test_client().get("/api/search?keyword=Camry")
+    result = next(car for car in response.json["results"] if car["id"] == camry)
+    assert result["image_url"].endswith("/static/images/cars/2021-toyota-camry.jpg")
+
+
+def test_owner_sees_and_can_process_pending_requests_from_home(app, ctx):
+    """Pending owner requests show confirm/decline actions on home and booking pages."""
+    ids = app.ids
+    first = bookings.create_booking(ctx, ids["car"], ids["renter"], t(2), t(4))
+    second = bookings.create_booking(ctx, ids["car"], ids["renter2"], t(5), t(7))
+    owner = app.test_client()
+    login(owner, "owner@x.com")
+
+    home = owner.get("/").get_data(as_text=True)
+    assert f"/bookings/{first}/confirm" in home
+    assert f"/bookings/{first}/decline" in home
+    assert f"/bookings/{second}/confirm" in home
+    assert f"/bookings/{second}/decline" in home
+
+    history = owner.get("/bookings").get_data(as_text=True)
+    assert "As owner (2)" in history
+    assert "Confirm" in history and "Decline" in history
+    assert owner.post(f"/bookings/{first}/confirm").status_code == 302
+    assert owner.post(f"/bookings/{second}/decline").status_code == 302
+    assert bookings.get_booking(ctx, first)["status"] == "confirmed"
+    assert bookings.get_booking(ctx, second)["status"] == "declined"
+
+
 # ----------------------------- Singleton ----------------------------- #
 def test_session_manager_is_singleton():
     """Repeated construction returns the same process-wide manager."""
