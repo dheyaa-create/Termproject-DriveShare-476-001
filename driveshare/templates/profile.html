@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.name }}{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="row spread"><div><h1>{{ profile.name }}</h1>
+    <p class="muted">Member since {{ profile.created_at[:10] }} ·
+      {% if rating %}<span class="stars">★</span> {{ rating }} from {{ review_count }} review{{ '' if review_count==1 else 's' }}{% else %}No reviews yet{% endif %}</p></div>
+    {% if current_user and current_user.id != profile.id %}<a class="btn secondary" href="{{ url_for('main.conversation', partner_id=profile.id) }}">💬 Message</a>{% endif %}
+  </div>
+</div>
+<div class="two-col">
+  <div class="card"><h2>Reviews</h2>
+    {% for r in reviews %}<div class="list-item"><div><span class="stars">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</span> <strong>{{ r.reviewer_name }}</strong> <span class="muted small">· {{ r.year }} {{ r.make }} {{ r.model }}</span>
+      <p class="muted">{{ r.comment or '' }}</p></div><span class="muted small">{{ r.created_at[:10] }}</span></div>
+    {% else %}<p class="muted">No reviews yet.</p>{% endfor %}</div>
+  <div><h2>Listings</h2><div class="results">
+    {% for c in listings %}{% set c = c %}<a class="car-card" href="{{ url_for('main.car_detail', car_id=c.id) }}"><div class="car-thumb">{{ c.make[0] }}</div><div><h3>{{ c.year }} {{ c.make }} {{ c.model }}</h3><p class="muted">{{ c.location }}</p></div><div class="car-price">${{ '%.0f'|format(c.price_per_day) }}<span>/day</span></div></a>
+    {% else %}<p class="muted">No active listings.</p>{% endfor %}</div></div>
+</div>
+{% endblock %}

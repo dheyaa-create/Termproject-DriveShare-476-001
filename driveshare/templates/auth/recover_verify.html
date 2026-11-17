@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Verify identity{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>Verify your identity</h1>
+  <p class="muted">Step 2 of 2 · Each answer is checked by its own link in a <strong>Chain of Responsibility</strong>
+    (lockout check → question 1 → question 2 → question 3 → reset). Too many failures lock recovery.</p>
+  <form method="post">
+    {% for q in questions %}
+      <label>{{ q.position }}. {{ q.question }}</label>
+      <input name="answer{{ q.position }}" required autocomplete="off">
+    {% endfor %}
+    <div class="grid g2" style="margin-top:8px">
+      <div><label>New password</label><input type="password" name="password" minlength="8" required></div>
+      <div><label>Confirm</label><input type="password" name="confirm" minlength="8" required></div>
+    </div>
+    <button class="btn block" style="margin-top:16px">Reset password</button>
+  </form>
+</div>
+{% endblock %}

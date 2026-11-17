@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}My cars{% endblock %}
+{% block content %}
+<div class="row spread"><h1>My cars</h1><a class="btn" href="{{ url_for('main.new_car') }}">+ List a car</a></div>
+{% if cars %}
+<div class="table-wrap"><table>
+  <tr><th>Car</th><th>Location</th><th>Price/day</th><th>Status</th><th></th></tr>
+  {% for c in cars %}
+  <tr><td><a href="{{ url_for('main.car_detail', car_id=c.id) }}">{{ c.year }} {{ c.make }} {{ c.model }}</a></td>
+      <td>{{ c.location }}</td><td>${{ '%.2f'|format(c.price_per_day) }}</td>
+      <td>{{ 'Listed' if c.is_active else 'Hidden' }}</td>
+      <td><a class="btn small secondary" href="{{ url_for('main.manage_car', car_id=c.id) }}">Manage</a></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="empty">You have not listed any cars yet.</div>{% endif %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<div class="search-layout">
+  {# Filters are a Mediator component: any change triggers a live AJAX refresh. #}
+  <form id="search-filters" class="card" action="{{ url_for('main.search') }}" method="get">
+    <h3>Filters <span class="pattern-tag">Mediator</span></h3>
+    <label>Location</label><input name="location" value="{{ args.get('location','') }}" placeholder="Any city">
+    <label>Pick-up</label><input type="datetime-local" name="start" value="{{ args.get('start','') }}">
+    <label>Drop-off</label><input type="datetime-local" name="end" value="{{ args.get('end','') }}">
+    <label>Max price / day ($)</label><input type="number" min="1" name="max_price" value="{{ args.get('max_price','') }}">
+    <label>Car type</label>
+    <select name="car_type"><option value="">Any</option>
+      {% for t in car_types %}<option {% if args.get('car_type')==t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select>
+    <label>Min seats</label>
+    <select name="min_seats"><option value="">Any</option>
+      {% for n in [2,4,5,7] %}<option value="{{ n }}" {% if args.get('min_seats')==n|string %}selected{% endif %}>{{ n }}+</option>{% endfor %}</select>
+    <label>Keyword</label><input name="keyword" value="{{ args.get('keyword','') }}" placeholder="Make, model, feature">
+    <label>Sort by</label>
+    <select name="sort">
+      {% for v,l in [('price_asc','Price: low to high'),('price_desc','Price: high to low'),('year_desc','Newest'),('rating','Owner rating')] %}
+      <option value="{{ v }}" {% if args.get('sort')==v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+    </select>
+    <noscript><button class="btn block" style="margin-top:12px">Apply</button></noscript>
+  </form>
+  <div>
+    <p id="result-count" class="muted">{{ results|length }} car{{ '' if results|length == 1 else 's' }} found</p>
+    <div id="results" class="results">
+      {% set qs = ('?start=' ~ args.start ~ '&end=' ~ args.end) if args.get('start') and args.get('end') else '' %}
+      {% for c in results %}{% include "_car_card.html" %}{% else %}
+      <div class="empty">No cars match these filters. Try widening your search.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

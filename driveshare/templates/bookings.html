@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Trips & history{% endblock %}
+{% macro review_form(b, tab) %}
+  <form method="post" action="{{ url_for('main.booking_action', booking_id=b.id, action='review') }}" class="row" style="margin-top:6px">
+    <input type="hidden" name="tab" value="{{ tab }}">
+    <select name="rating" style="width:auto">{% for n in [5,4,3,2,1] %}<option value="{{ n }}">{{ '★'*n }}</option>{% endfor %}</select>
+    <input name="comment" placeholder="Comment (optional)" style="flex:1;min-width:140px">
+    <button class="btn small">Review</button>
+  </form>
+{% endmacro %}
+{% block content %}
+<h1>Trips &amp; rental history</h1>
+<div class="tabs">
+  <a href="?tab=renter" class="{{ 'active' if tab=='renter' }}">As renter ({{ as_renter|length }})</a>
+  <a href="?tab=owner" class="{{ 'active' if tab=='owner' }}">As owner ({{ as_owner|length }})</a>
+</div>
+{% if tab == 'renter' %}
+  {% if as_renter %}<div class="table-wrap"><table>
+    <tr><th>Car</th><th>Period</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+    {% for b in as_renter %}{% set st = display_status(b) %}
+    <tr><td><a href="{{ url_for('main.car_detail', car_id=b.car_id) }}">{{ b.year }} {{ b.make }} {{ b.model }}</a><br><span class="muted small">Owner: {{ b.owner_name }}</span></td>
+      <td>{{ b.start_time|dt }}<br>→ {{ b.end_time|dt }}</td>
+      <td>${{ '%.2f'|format(b.total_price) }}</td>
+      <td><span class="status {{ st }}">{{ st }}</span></td>
+      <td>
+        {% if b.status == 'confirmed' %}
+          {# Payment button: goes through PaymentProxy on the server #}
+          <form class="inline" method="post" action="{{ url_for('main.booking_action', booking_id=b.id, action='pay') }}">
+            <input type="hidden" name="amount" value="{{ '%.2f'|format(b.total_price) }}">
+            <button class="btn small ok">💳 Pay ${{ '%.2f'|format(b.total_price) }}</button></form>
+        {% endif %}
+        {% if b.status in ('pending','confirmed') %}
+          <form class="inline" method="post" action="{{ url_for('main.booking_action', booking_id=b.id, action='cancel') }}"><button class="btn small danger">Cancel</button></form>
+        {% endif %}
+        <a class="btn small secondary" href="{{ url_for('main.conversation', partner_id=b.owner_id, car_id=b.car_id) }}">Message</a>
+        {% if b.status == 'paid' and b.id not in reviewed %}{{ review_form(b, 'renter') }}{% elif b.id in reviewed %}<span class="muted small">✓ Reviewed</span>{% endif %}
+      </td></tr>
+    {% endfor %}</table></div>
+  {% else %}<div class="empty">No trips yet. <a href="{{ url_for('main.search') }}">Find a car</a>.</div>{% endif %}
+{% else %}
+  {% if as_owner %}<div class="table-wrap"><table>
+    <tr><th>Car</th><th>Renter</th><th>Period</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+    {% for b in as_owner %}{% set st = display_status(b) %}
+    <tr><td><a href="{{ url_for('main.manage_car', car_id=b.car_id) }}">{{ b.year }} {{ b.make }} {{ b.model }}</a></td>
+      <td><a href="{{ url_for('main.profile', user_id=b.renter_id) }}">{{ b.renter_name }}</a></td>
+      <td>{{ b.start_time|dt }}<br>→ {{ b.end_time|dt }}</td>
+      <td>${{ '%.2f'|format(b.total_price) }}</td>
+      <td><span class="status {{ st }}">{{ st }}</span></td>
+      <td>
+        {% if b.status == 'pending' %}
+          <form class="inline" method="post" action="{{ url_for('main.booking_action', booking_id=b.id, action='confirm') }}"><button class="btn small ok">Confirm</button></form>
+          <form class="inline" method="post" action="{{ url_for('main.booking_action', booking_id=b.id, action='decline') }}"><button class="btn small danger">Decline</button></form>
+        {% endif %}
+        <a class="btn small secondary" href="{{ url_for('main.conversation', partner_id=b.renter_id, car_id=b.car_id) }}">Message</a>
+        {% if b.status == 'paid' and b.id not in reviewed %}{{ review_form(b, 'owner') }}{% elif b.id in reviewed %}<span class="muted small">✓ Reviewed</span>{% endif %}
+      </td></tr>
+    {% endfor %}</table></div>
+  {% else %}<div class="empty">No bookings of your cars yet.</div>{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>Create your account</h1>
+  <form method="post">
+    <label>Full name</label><input name="name" value="{{ form.get('name','') }}" required>
+    <label>Email</label><input type="email" name="email" value="{{ form.get('email','') }}" required>
+    <div class="grid g2">
+      <div><label>Password</label><input type="password" name="password" minlength="8" required></div>
+      <div><label>Confirm password</label><input type="password" name="confirm" minlength="8" required></div>
+    </div>
+    <p class="muted small">At least 8 characters with a letter and a number. Passwords are stored only as salted hashes.</p>
+    <h3 style="margin-top:18px">Security questions <span class="pattern-tag">Chain of Responsibility</span></h3>
+    <p class="muted small">Used to recover your password. Answers are not case-sensitive and are stored hashed.</p>
+    {% for i in [1,2,3] %}
+      <label>Question {{ i }}</label>
+      <select name="question{{ i }}" required>
+        {% for q in questions %}<option {% if form.get('question'~i) == q or (not form.get('question'~i) and loop.index == i) %}selected{% endif %}>{{ q }}</option>{% endfor %}
+      </select>
+      <input name="answer{{ i }}" placeholder="Answer {{ i }}" value="{{ form.get('answer'~i,'') }}" required style="margin-top:6px">
+    {% endfor %}
+    <button class="btn block" style="margin-top:18px">Sign up</button>
+  </form>
+</div>
+{% endblock %}

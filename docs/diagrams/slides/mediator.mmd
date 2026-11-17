@@ -1,0 +1,24 @@
+classDiagram
+  direction TB
+  class Mediator {
+    <<abstract>>
+    +register(name, component)
+    +notify(sender, event, payload)*
+  }
+  class BookingMediator {
+    +notify(sender, event, payload)
+  }
+  class Component {
+    +emit(event, payload)
+  }
+  class DateRangePicker
+  class PriceQuote
+  class BookButton
+  class WatchForm
+  Mediator <|-- BookingMediator
+  Mediator o-- "*" Component : components
+  Component <|-- DateRangePicker
+  Component <|-- PriceQuote
+  Component <|-- BookButton
+  Component <|-- WatchForm
+  note for BookingMediator "SearchMediator and NavMediator<br>work the same way"

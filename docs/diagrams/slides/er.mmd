@@ -1,0 +1,12 @@
+erDiagram
+  users ||--|{ security_questions : "sets 3"
+  users ||--o{ cars : owns
+  cars ||--o{ car_availability : "offered in"
+  cars ||--o{ bookings : "booked in"
+  users ||--o{ bookings : rents
+  bookings ||--o| payments : "paid by"
+  users ||--o{ watches : creates
+  cars ||--o{ watches : "watched by"
+  users ||--o{ notifications : receives
+  users ||--o{ messages : sends
+  bookings ||--o{ reviews : "reviewed in"

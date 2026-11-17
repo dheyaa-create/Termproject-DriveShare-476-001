@@ -1,0 +1,43 @@
+classDiagram
+  class CarObserver {
+    <<abstract>>
+    +update(car, event)*
+  }
+  class WatchObserver {
+    +watch: dict
+    +triggered: bool
+    -_is_available: callable
+    -_notifier: callable
+    +criteria_met(car) bool
+    +update(car, event)
+  }
+  class CarListingSubject {
+    +car: dict
+    -_observers: list~CarObserver~
+    +attach(observer)
+    +detach(observer)
+    +notify_observers(event)
+  }
+  class CarEventPublisher {
+    -_load_car: callable
+    -_load_watches: callable
+    -_is_available: callable
+    -_notifier: callable
+    -_on_triggered: callable
+    +publish(car_id, event, only_watch_id) list
+  }
+  class CarEvent {
+    <<constants>>
+    PRICE_CHANGED
+    AVAILABILITY_CHANGED
+    BOOKING_RELEASED
+    WATCH_CREATED
+  }
+  CarObserver <|-- WatchObserver
+  CarListingSubject o-- "*" CarObserver : observers
+  CarEventPublisher ..> CarListingSubject : creates
+  CarEventPublisher ..> WatchObserver : creates one per watch row
+  car_service ..> CarEventPublisher : make_publisher(db)
+  booking_service ..> CarEventPublisher : on cancel/decline
+  class car_service { <<module>> }
+  class booking_service { <<module>> }

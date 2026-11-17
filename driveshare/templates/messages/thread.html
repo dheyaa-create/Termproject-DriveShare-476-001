@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ partner.name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('main.inbox') }}">← All messages</a></p>
+<div class="card" style="max-width:760px;margin:0 auto">
+  <h2>Conversation with <a href="{{ url_for('main.profile', user_id=partner.id) }}">{{ partner.name }}</a></h2>
+  {% if car %}<p class="muted small">About: {{ car.year }} {{ car.make }} {{ car.model }}</p>{% endif %}
+  <div class="thread" id="thread">
+    {% for m in messages %}
+    <div class="bubble {{ 'mine' if m.sender_id == current_user.id }}">{{ m.body }}
+      <div class="meta">{{ m.created_at }}{% if m.make %} · re: {{ m.year }} {{ m.make }} {{ m.model }}{% endif %}</div></div>
+    {% else %}<p class="muted">Say hello 👋</p>{% endfor %}
+  </div>
+  <form method="post" class="row" style="margin-top:14px">
+    {% if car %}<input type="hidden" name="car_id" value="{{ car.id }}">{% endif %}
+    <input name="body" placeholder="Write a message…" required maxlength="2000" style="flex:1" autofocus>
+    <button class="btn">Send</button>
+  </form>
+</div>
+<script>const t=document.getElementById('thread'); t.scrollTop=t.scrollHeight;</script>
+{% endblock %}

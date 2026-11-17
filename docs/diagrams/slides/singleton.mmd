@@ -1,0 +1,21 @@
+classDiagram
+  direction LR
+  class auth_service {
+    <<module>>
+    +login_user(user_id)
+    +logout_user()
+  }
+  class SessionManager {
+    <<Singleton>>
+    -_instance: SessionManager$
+    +#95;#95;new#95;#95;(cls) SessionManager
+    +create_session(user_id) str
+    +get_user_id(token) int
+    +end_session(token)
+  }
+  class _SessionRecord {
+    +user_id: int
+    +last_seen: float
+  }
+  auth_service ..> SessionManager : uses
+  SessionManager "1" *-- "*" _SessionRecord : holds

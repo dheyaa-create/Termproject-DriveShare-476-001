@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ car.year }} {{ car.make }} {{ car.model }}{% endblock %}
+{% block content %}
+<div class="two-col">
+  <div>
+    <img class="car-image detail-image" src="{{ car|car_image }}"
+         alt="{{ car.year }} {{ car.make }} {{ car.model }}">
+    <div class="card" style="margin-top:18px">
+      <h1>{{ car.year }} {{ car.make }} {{ car.model }}</h1>
+      <p class="muted">📍 {{ car.location }} · {{ '{:,}'.format(car.mileage) }} miles
+        {% if not car.is_active %}· <strong>Currently unlisted</strong>{% endif %}</p>
+      <p>Hosted by <a href="{{ url_for('main.profile', user_id=car.owner_id) }}">{{ car.owner_name }}</a>
+        {% if owner_rating %}· <span class="stars">★</span> {{ owner_rating }} ({{ owner_reviews }} review{{ '' if owner_reviews==1 else 's' }}){% endif %}</p>
+      <div class="chips">
+        {% for v in [car.car_type, car.seats and (car.seats|string ~ ' seats'), car.transmission, car.fuel_type] if v %}<span class="chip">{{ v }}</span>{% endfor %}
+        {% for f in (car.features or '').split(',') if f.strip() %}<span class="chip">✓ {{ f.strip() }}</span>{% endfor %}
+      </div>
+      {% if car.description %}<p>{{ car.description }}</p>{% endif %}
+    </div>
+    <div class="card">
+      <h2>Availability calendar</h2>
+      <div class="grid g2">
+        <div><h3>Offered by the owner</h3>
+          {% for w in windows %}<p class="muted">🟢 {{ w.start_time|dt }} → {{ w.end_time|dt }}</p>{% else %}<p class="muted">No availability yet.</p>{% endfor %}</div>
+        <div><h3>Already booked</h3>
+          {% for b in booked %}<p class="muted">🔴 {{ b.start_time|dt }} → {{ b.end_time|dt }}</p>{% else %}<p class="muted">No bookings yet.</p>{% endfor %}</div>
+      </div>
+    </div>
+    {% if reviews %}
+    <div class="card"><h2>Reviews of {{ car.owner_name }}</h2>
+      {% for r in reviews %}<div class="list-item"><div><span class="stars">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</span> <strong>{{ r.reviewer_name }}</strong><p class="muted">{{ r.comment or '' }}</p></div></div>{% endfor %}
+    </div>{% endif %}
+  </div>
+
+  <aside class="sidebar-sticky">
+    <div class="card">
+      <div class="car-price" style="text-align:left">${{ '%.2f'|format(car.price_per_day) }}<span>/day</span></div>
+      {% if current_user and current_user.id == car.owner_id %}
+        <p class="muted">This is your listing.</p>
+        <a class="btn block" href="{{ url_for('main.manage_car', car_id=car.id) }}">Manage listing</a>
+      {% elif car.is_active %}
+        {# Booking panel: each field is a Mediator component (see static/js/mediator.js) #}
+        <form id="booking-panel" data-car-id="{{ car.id }}" method="post" action="{{ url_for('main.book', car_id=car.id) }}">
+          <label>Pick-up <span class="pattern-tag">Mediator</span></label>
+          <input type="datetime-local" name="start" value="{{ prefill_start }}" required>
+          <label>Drop-off</label>
+          <input type="datetime-local" name="end" value="{{ prefill_end }}" required>
+          <div class="quote">Choose pick-up and drop-off times to see the price.</div>
+          {% if current_user %}<button class="btn block" type="submit" disabled>Request to book</button>
+          {% else %}<button class="btn block" type="submit" disabled hidden></button>
+            <a class="btn block" href="{{ url_for('auth.login', next=request.path) }}">Log in to book</a>{% endif %}
+        </form>
+      {% endif %}
+    </div>
+    {% if current_user and current_user.id != car.owner_id %}
+    <form id="watch-form" class="card" method="post" action="{{ url_for('main.watch', car_id=car.id) }}">
+      <h3>👀 Watch this car <span class="pattern-tag">Observer</span></h3>
+      <p class="muted small">Get notified when it is available for your dates and/or drops to your price.</p>
+      {% if watch %}<p class="small"><strong>Watching</strong>{% if watch.max_price %} · ≤ ${{ '%.2f'|format(watch.max_price) }}/day{% endif %}{% if watch.start_time %} · {{ watch.start_time|dt }} → {{ watch.end_time|dt }}{% endif %}</p>{% endif %}
+      <label>Target price / day ($)</label><input type="number" step="0.01" min="1" name="max_price" value="{{ watch.max_price if watch and watch.max_price else '' }}">
+      <label>Needed from</label><input type="datetime-local" name="start" value="{{ watch.start_time if watch and watch.start_time else '' }}">
+      <label>Needed until</label><input type="datetime-local" name="end" value="{{ watch.end_time if watch and watch.end_time else '' }}">
+      <button class="btn secondary block" style="margin-top:12px">{{ 'Update watch' if watch else 'Watch car' }}</button>
+    </form>
+    <a class="btn secondary block" href="{{ url_for('main.conversation', partner_id=car.owner_id, car_id=car.id) }}">💬 Message {{ car.owner_name.split()[0] }}</a>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{# base.html - shared layout: nav bar, flash messages, toast, Mediator script #}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}DriveShare{% endblock %} · DriveShare</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="{{ url_for('main.index') }}">Drive<span>Share</span></a>
+    <a href="{{ url_for('main.search') }}">Browse cars</a>
+    <div class="nav-links">
+      {% if current_user %}
+        <a href="{{ url_for('main.new_car') }}">List your car</a>
+        <a href="{{ url_for('main.my_cars') }}">My cars</a>
+        <a href="{{ url_for('main.my_bookings') }}">Trips &amp; history</a>
+        <a href="{{ url_for('main.watches') }}">Watchlist</a>
+        <a href="{{ url_for('main.inbox') }}">Messages</a>
+        <a id="notif-bell" class="bell" href="{{ url_for('main.notifications') }}" data-count="{{ unread_notifications }}" title="Notifications">🔔<span class="badge" {% if not unread_notifications %}hidden{% endif %}>{{ unread_notifications }}</span></a>
+        <span class="balance" title="Simulated wallet balance">${{ '%.2f'|format(current_user.balance) }}</span>
+        <a href="{{ url_for('main.profile', user_id=current_user.id) }}">{{ current_user.name.split()[0] }}</a>
+        <a href="{{ url_for('auth.logout') }}">Log out</a>
+      {% else %}
+        <a href="{{ url_for('main.about') }}">How it works</a>
+        <a href="{{ url_for('auth.login') }}">Log in</a>
+        <a class="btn small" href="{{ url_for('auth.register') }}">Sign up</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+<main class="container">
+  {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ category }}">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<footer>DriveShare · peer-to-peer car rental demo · <a href="{{ url_for('main.about') }}">Design patterns</a></footer>
+<div id="toast" class="toast" role="status"></div>
+<script src="{{ url_for('static', filename='js/mediator.js') }}"></script>
+</body>
+</html>

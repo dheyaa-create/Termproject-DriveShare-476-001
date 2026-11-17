@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Watchlist{% endblock %}
+{% block content %}
+<h1>Watchlist <span class="pattern-tag">Observer</span></h1>
+<p class="muted">You are notified whenever a watched car changes (price update, new availability, a booking released) and meets your criteria.</p>
+{% if watches %}<div class="table-wrap"><table>
+  <tr><th>Car</th><th>Current price</th><th>Your target</th><th>Dates needed</th><th>Last alert</th><th></th></tr>
+  {% for w in watches %}
+  <tr><td><a href="{{ url_for('main.car_detail', car_id=w.car_id) }}">{{ w.year }} {{ w.make }} {{ w.model }}</a><br><span class="muted small">{{ w.location }}</span></td>
+    <td>${{ '%.2f'|format(w.price_per_day) }}</td>
+    <td>{{ ('≤ $%.2f'|format(w.max_price)) if w.max_price else '-' }}</td>
+    <td>{% if w.start_time %}{{ w.start_time|dt }}<br>→ {{ w.end_time|dt }}{% else %}-{% endif %}</td>
+    <td>{{ w.last_notified or 'Not yet' }}</td>
+    <td><form method="post" action="{{ url_for('main.delete_watch', watch_id=w.id) }}"><button class="btn small danger">Remove</button></form></td></tr>
+  {% endfor %}</table></div>
+{% else %}<div class="empty">You are not watching any cars. Open a car page and use “Watch this car”.</div>{% endif %}
+{% endblock %}

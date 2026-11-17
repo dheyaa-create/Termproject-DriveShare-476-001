@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<h1>Messages</h1>
+<div class="card">
+  {% for c in conversations %}
+  <a class="list-item" href="{{ url_for('main.conversation', partner_id=c.partner_id) }}" style="color:inherit">
+    <div><div class="{{ 'unread' if c.unread }}">{{ c.partner_name }}{% if c.unread %} · {{ c.unread }} new{% endif %}</div>
+      <div class="muted small">{{ c.last_body[:90] }}</div></div>
+    <div class="muted small">{{ c.last_at }}</div></a>
+  {% else %}<p class="muted">No conversations yet. Message an owner from any car page.</p>{% endfor %}
+</div>
+{% endblock %}

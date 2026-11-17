@@ -1,0 +1,30 @@
+classDiagram
+  class SessionManager {
+    <<Singleton>>
+    -_instance: SessionManager$
+    -_instance_lock: Lock$
+    -_sessions: dict~str, _SessionRecord~
+    -_lock: RLock
+    +IDLE_TIMEOUT: int$
+    +#95;#95;new#95;#95;(cls) SessionManager
+    -_hash(token)$ str
+    +create_session(user_id) str
+    +get_user_id(token) int
+    +end_session(token)
+    +end_all_sessions_for(user_id)
+    +active_session_count() int
+  }
+  class _SessionRecord {
+    +user_id: int
+    +created_at: float
+    +last_seen: float
+  }
+  class auth_service {
+    <<module>>
+    +login_user(user_id)
+    +logout_user()
+    +load_current_user()
+    +login_required(view)
+  }
+  SessionManager "1" *-- "*" _SessionRecord : holds
+  auth_service ..> SessionManager : uses

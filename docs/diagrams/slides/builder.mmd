@@ -1,0 +1,22 @@
+classDiagram
+  direction LR
+  class CarListingDirector {
+    +economy_sedan(builder, ...)$
+    +family_suv(builder, ...)$
+  }
+  class CarListingBuilder {
+    +set_model(make, model)
+    +set_year(year)
+    +set_price_per_day(price)
+    +add_availability(start, end)
+    +build() CarListing
+  }
+  class CarListing {
+    <<frozen dataclass>>
+    +make, model, year
+    +mileage, location
+    +price_per_day
+    +optional extras
+  }
+  CarListingDirector ..> CarListingBuilder : directs
+  CarListingBuilder ..> CarListing : creates

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}How it works{% endblock %}
+{% block content %}
+<h1>How DriveShare is built</h1>
+<p class="muted">Six GoF design patterns power the platform. Active sessions held by the SessionManager singleton right now: <strong>{{ sessions }}</strong>.</p>
+<div class="grid g2">
+  {% for name, where, what in [
+    ('Singleton', 'patterns/session_manager.py', 'SessionManager is the single, thread-safe owner of all login sessions: random tokens, hashed storage, idle expiry, revocation.'),
+    ('Observer', 'patterns/observer.py', 'CarListingSubject notifies WatchObserver objects when price or availability changes; each observer checks the renter\'s target price / dates.'),
+    ('Mediator', 'static/js/mediator.js', 'BookingMediator, SearchMediator and NavMediator coordinate UI widgets (date pickers, price quote, book button, filters, results, bell, toast).'),
+    ('Builder', 'patterns/car_builder.py', 'CarListingBuilder assembles a CarListing step by step with optional attributes and validates it in build(); a Director provides presets.'),
+    ('Proxy', 'patterns/payment_proxy.py', 'PaymentProxy authenticates, authorises, validates and audits before lazily delegating to the SimulatedPaymentGateway.'),
+    ('Chain of Responsibility', 'patterns/password_recovery.py', 'Lockout → Question 1 → Question 2 → Question 3 → Reset handlers verify a password-recovery request in sequence.')] %}
+  <div class="card"><h3>{{ name }}</h3><p class="muted small"><code>{{ where }}</code></p><p>{{ what }}</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

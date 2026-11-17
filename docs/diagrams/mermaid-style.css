@@ -1,0 +1,8 @@
+svg { background: #ffffff; }
+.classGroup rect, .node rect, g.classGroup rect { stroke: #000 !important; stroke-width: 2px !important; fill: #fff !important; }
+.relation, .edgePath .path, .flowchart-link, path.relation { stroke: #000 !important; stroke-width: 2px !important; }
+.divider { stroke: #000 !important; stroke-width: 1.5px !important; }
+.classTitle, .label-container + g .nodeLabel strong { font-weight: 700; }
+.er.entityBox, .er.attributeBoxOdd, .er.attributeBoxEven { stroke: #000 !important; stroke-width: 1.5px !important; }
+.er.relationshipLine { stroke: #000 !important; stroke-width: 2px !important; }
+.edgeLabel, .edgeLabel p, .edgeLabel span { background: #fff !important; color: #000 !important; }

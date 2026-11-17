@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<h1>Notifications</h1>
+<p class="muted small">Each notification is also delivered as a simulated email (see <code>instance/email_outbox.log</code>).</p>
+<div class="card">
+  {% for n in items %}
+  <div class="list-item"><div><div class="kind">{{ n.kind }}</div>
+      <div class="{{ 'unread' if not n.is_read }}">{{ n.message }}</div>
+      {% if n.link %}<a class="small" href="{{ n.link }}">Open →</a>{% endif %}</div>
+    <div class="muted small" style="white-space:nowrap">{{ n.created_at }}</div></div>
+  {% else %}<p class="muted">Nothing yet.</p>{% endfor %}
+</div>
+{% endblock %}

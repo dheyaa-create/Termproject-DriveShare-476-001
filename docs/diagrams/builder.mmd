@@ -1,0 +1,53 @@
+classDiagram
+  class CarListingBuilder {
+    +REQUIRED: tuple$
+    -_owner_id: int
+    -_data: dict
+    -_features: list
+    -_availability: list
+    +set_model(make, model) CarListingBuilder
+    +set_year(year) CarListingBuilder
+    +set_mileage(mileage) CarListingBuilder
+    +set_location(location) CarListingBuilder
+    +set_price_per_day(price) CarListingBuilder
+    +set_car_type(t) CarListingBuilder
+    +set_seats(n) CarListingBuilder
+    +set_transmission(t) CarListingBuilder
+    +set_fuel_type(f) CarListingBuilder
+    +add_feature(f) CarListingBuilder
+    +set_features(csv) CarListingBuilder
+    +set_description(d) CarListingBuilder
+    +add_availability(start, end) CarListingBuilder
+    +build() CarListing
+  }
+  class CarListing {
+    <<frozen dataclass>>
+    +owner_id: int
+    +make: str
+    +model: str
+    +year: int
+    +mileage: int
+    +location: str
+    +price_per_day: float
+    +car_type: str
+    +seats: int
+    +transmission: str
+    +fuel_type: str
+    +features: tuple
+    +description: str
+    +availability: tuple
+    +title: str
+  }
+  class CarListingDirector {
+    +economy_sedan(builder, make, model, year, location, price)$ CarListingBuilder
+    +family_suv(builder, make, model, year, location, price)$ CarListingBuilder
+  }
+  class car_service {
+    <<module>>
+    +builder_from_form(owner_id, form) CarListingBuilder
+    +save_listing(db, listing) int
+  }
+  CarListingBuilder ..> CarListing : creates
+  CarListingDirector ..> CarListingBuilder : directs
+  car_service ..> CarListingBuilder : drives
+  car_service ..> CarListing : persists

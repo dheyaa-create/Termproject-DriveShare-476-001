@@ -1,0 +1,41 @@
+classDiagram
+  class PaymentGateway {
+    <<abstract>>
+    +process_payment(request) PaymentResult*
+  }
+  class SimulatedPaymentGateway {
+    +db
+    +process_payment(request) PaymentResult
+  }
+  class PaymentProxy {
+    +db
+    -_gateway_factory
+    -_real_gateway: SimulatedPaymentGateway
+    -_gateway() SimulatedPaymentGateway
+    -_validate(request)
+    +process_payment(request) PaymentResult
+  }
+  class PaymentRequest {
+    +booking_id: int
+    +payer_id: int
+    +amount: float
+    +card_last4: str
+  }
+  class PaymentResult {
+    +success: bool
+    +message: str
+    +reference: str
+    +amount: float
+    +payer_id: int
+    +payee_id: int
+  }
+  class community_service {
+    <<module>>
+    +pay_booking(db, booking_id, payer_id, amount)
+  }
+  PaymentGateway <|-- SimulatedPaymentGateway
+  PaymentGateway <|-- PaymentProxy
+  PaymentProxy o-- SimulatedPaymentGateway : lazily delegates to
+  community_service ..> PaymentProxy : only talks to
+  PaymentProxy ..> PaymentRequest
+  PaymentProxy ..> PaymentResult

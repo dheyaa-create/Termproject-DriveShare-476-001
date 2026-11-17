@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Skip the rental counter.</h1>
+  <p>Rent cars directly from local owners - or earn money sharing yours.</p>
+  <form action="{{ url_for('main.search') }}" method="get">
+    <div><label>Where</label><input name="location" placeholder="City, e.g. Ann Arbor"></div>
+    <div><label>From</label><input type="datetime-local" name="start"></div>
+    <div><label>Until</label><input type="datetime-local" name="end"></div>
+    <button class="btn" type="submit">Search</button>
+  </form>
+</section>
+<div class="row spread"><h2>Top-rated cars</h2><a href="{{ url_for('main.search') }}">See all →</a></div>
+{% if featured %}
+<div class="featured">{% for c in featured %}{% include "_car_card.html" %}{% endfor %}</div>
+{% else %}<div class="empty">No cars listed yet. <a href="{{ url_for('main.new_car') }}">Be the first!</a></div>{% endif %}
+{% endblock %}

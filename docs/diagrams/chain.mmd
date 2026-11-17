@@ -1,0 +1,38 @@
+classDiagram
+  class RecoveryHandler {
+    <<abstract>>
+    +name: str
+    +db
+    -_next: RecoveryHandler
+    +set_next(handler) RecoveryHandler
+    +handle(request) RecoveryResult
+    +check(request) RecoveryResult*
+  }
+  class AccountLockoutHandler { +check(request) }
+  class SecurityQuestionHandler {
+    +position: int
+    +check(request)
+  }
+  class PasswordResetHandler {
+    -_on_reset: callable
+    +check(request)
+  }
+  class RecoveryRequest {
+    +user_id: int
+    +answers: list
+    +new_password: str
+    +passed: list
+  }
+  class RecoveryResult {
+    +success: bool
+    +message: str
+    +failed_at: str
+  }
+  RecoveryHandler <|-- AccountLockoutHandler
+  RecoveryHandler <|-- SecurityQuestionHandler
+  RecoveryHandler <|-- PasswordResetHandler
+  RecoveryHandler o-- RecoveryHandler : _next
+  RecoveryHandler ..> RecoveryRequest
+  RecoveryHandler ..> RecoveryResult
+  PasswordResetHandler ..> SessionManager : end_all_sessions_for
+  class SessionManager { <<Singleton>> }

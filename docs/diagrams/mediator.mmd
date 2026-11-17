@@ -1,0 +1,73 @@
+classDiagram
+  class Mediator {
+    <<abstract>>
+    +components: object
+    +register(name, component) Mediator
+    +notify(sender, event, payload)*
+  }
+  class Component {
+    +el
+    +mediator: Mediator
+    +name: string
+    +setMediator(m, name)
+    +emit(event, payload)
+  }
+  class BookingMediator {
+    +carId
+    +notify()
+  }
+  class SearchMediator {
+    +notify()
+  }
+  class NavMediator {
+    +notify()
+  }
+  class DateRangePicker {
+    +range()
+  }
+  class PriceQuote {
+    +show(q)
+    +error(r)
+    +hint(t)
+  }
+  class BookButton {
+    +enable(total)
+    +disable(label)
+  }
+  class WatchForm {
+    +prefill(range)
+    +highlight(on)
+  }
+  class SearchFilters {
+    +params()
+  }
+  class ResultsList {
+    +render(results, query)
+  }
+  class ResultCount {
+    +set(n)
+    +error(msg)
+  }
+  class Poller
+  class NotificationBell {
+    +count
+    +setCount(n)
+  }
+  class Toast {
+    +show(text)
+  }
+  Mediator <|-- BookingMediator
+  Mediator <|-- SearchMediator
+  Mediator <|-- NavMediator
+  Component <|-- DateRangePicker
+  Component <|-- PriceQuote
+  Component <|-- BookButton
+  Component <|-- WatchForm
+  Component <|-- SearchFilters
+  Component <|-- ResultsList
+  Component <|-- ResultCount
+  Component <|-- Poller
+  Component <|-- NotificationBell
+  Component <|-- Toast
+  Mediator o-- "*" Component : components
+  Component --> Mediator : emit()

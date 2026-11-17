@@ -1,0 +1,18 @@
+classDiagram
+  direction TB
+  class RecoveryHandler {
+    <<abstract>>
+    -_next: RecoveryHandler
+    +set_next(handler)
+    +handle(request)
+    +check(request)*
+  }
+  class AccountLockoutHandler
+  class SecurityQuestionHandler {
+    +position: 1, 2 or 3
+  }
+  class PasswordResetHandler
+  RecoveryHandler <|-- AccountLockoutHandler
+  RecoveryHandler <|-- SecurityQuestionHandler
+  RecoveryHandler <|-- PasswordResetHandler
+  RecoveryHandler o-- RecoveryHandler : next

@@ -1,0 +1,22 @@
+classDiagram
+  direction TB
+  class PaymentGateway {
+    <<abstract>>
+    +process_payment(request)*
+  }
+  class PaymentProxy {
+    -_validate(request)
+    -_gateway()
+    +process_payment(request)
+  }
+  class SimulatedPaymentGateway {
+    +process_payment(request)
+  }
+  class community_service {
+    <<module>>
+    +pay_booking(...)
+  }
+  PaymentGateway <|-- PaymentProxy
+  PaymentGateway <|-- SimulatedPaymentGateway
+  PaymentProxy o-- SimulatedPaymentGateway : delegates to
+  community_service ..> PaymentProxy : only talks to

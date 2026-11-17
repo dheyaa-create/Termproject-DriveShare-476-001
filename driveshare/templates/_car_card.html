@@ -1,0 +1,13 @@
+{# Reusable car card. Expects `c` (car row) and optional `qs` (query string with dates). #}
+<a class="car-card" href="{{ url_for('main.car_detail', car_id=c.id) }}{{ qs or '' }}">
+  <div class="car-image-frame">
+    <img class="car-image" src="{{ c|car_image }}" alt="{{ c.year }} {{ c.make }} {{ c.model }}"
+         loading="lazy">
+  </div>
+  <div class="car-body">
+    <h3>{{ c.year }} {{ c.make }} {{ c.model }}</h3>
+    <p class="muted">{{ c.location }} · {{ '{:,}'.format(c.mileage) }} mi{% if c.seats %} · {{ c.seats }} seats{% endif %}</p>
+    <p class="muted">Hosted by {{ c.owner_name }}{% if c.avg_rating %} · ★ {{ c.avg_rating }}{% endif %}</p>
+  </div>
+  <div class="car-price">${{ '%.2f'|format(c.price_per_day) }}<span>/day</span></div>
+</a>

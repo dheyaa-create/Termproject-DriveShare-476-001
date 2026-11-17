@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Recover password{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>Forgot your password?</h1>
+  <p class="muted">Step 1 of 2 · Enter your account email. Next you will answer your three security questions.</p>
+  <form method="post">
+    <label>Email</label><input type="email" name="email" required autofocus>
+    <button class="btn block" style="margin-top:16px">Continue</button>
+  </form>
+</div>
+{% endblock %}

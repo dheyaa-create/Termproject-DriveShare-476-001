@@ -1,0 +1,32 @@
+flowchart LR
+  subgraph Browser
+    T[Jinja2 templates] --- JS["mediator.js<br/>BookingMediator / SearchMediator / NavMediator"]
+  end
+  subgraph Flask["Flask app (driveshare/)"]
+    R["routes.py<br/>auth_bp · main_bp · api_bp"]
+    subgraph Services["services/"]
+      AS[auth_service] --- CS[car_service] --- BS[booking_service] --- COM[community_service] --- NS[notification_service]
+    end
+    subgraph Patterns["patterns/"]
+      SM["SessionManager<br/>(Singleton)"]
+      CB["CarListingBuilder<br/>(Builder)"]
+      OB["CarListingSubject / WatchObserver<br/>(Observer)"]
+      PP["PaymentProxy<br/>(Proxy)"]
+      CH["RecoveryHandler chain<br/>(Chain of Responsibility)"]
+    end
+  end
+  DB[(SQLite<br/>driveshare.sqlite3)]
+  OUT[[email_outbox.log]]
+  T -- HTTP form posts --> R
+  JS -- fetch /api/* --> R
+  R --> Services
+  R --> SM
+  R --> CH
+  AS --> SM
+  CS --> CB
+  CS --> OB
+  BS --> OB
+  COM --> PP
+  Services --> DB
+  Patterns --> DB
+  NS --> OUT

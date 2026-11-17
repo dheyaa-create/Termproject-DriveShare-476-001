@@ -1,0 +1,21 @@
+classDiagram
+  direction LR
+  class CarEventPublisher {
+    +publish(car_id, event)
+  }
+  class CarListingSubject {
+    +attach(observer)
+    +detach(observer)
+    +notify_observers(event)
+  }
+  class CarObserver {
+    <<abstract>>
+    +update(car, event)*
+  }
+  class WatchObserver {
+    +criteria_met(car) bool
+    +update(car, event)
+  }
+  CarEventPublisher ..> CarListingSubject : creates
+  CarListingSubject o-- "*" CarObserver : observers
+  CarObserver <|-- WatchObserver
